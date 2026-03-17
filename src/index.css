@@ -1,0 +1,18 @@
+/* Remove white everywhere */
+body {
+  margin: 0;
+  background-color: #0a0f1c; /* dark gotham bg */
+  color: #e6edf3;
+}
+
+/* Force override all white containers */
+div, section, aside, panel {
+  background-color: transparent !important;
+}
+
+/* Optional: make cards dark instead of white */
+.card, .panel, .box {
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
