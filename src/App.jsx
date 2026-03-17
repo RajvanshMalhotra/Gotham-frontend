@@ -1,4 +1,4 @@
-import GothamOrbital from "./components/GothamOrbital";
+import GothamOrbital from "./components/gotham";
 
 function App() {
   return (

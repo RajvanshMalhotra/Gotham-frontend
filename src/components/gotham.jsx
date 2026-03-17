@@ -30,66 +30,9 @@ const THREAT_META = [
 ];
 
 const SITUATIONS = [
-  {
-    id:"COSMOS2543",
-    title:"COSMOS-2543 Kill Vehicle Activity",
-    classification:"SECRET//NOFORN",
-    affiliation:"Russia — VKS (Aerospace Forces)",
-    affColor:"#c0192c",
-    started:"Mar 15 2026",
-    dossier:"Russian ASAT Program — Spring 2026",
-    summary:"COSMOS-2543 has executed a series of proximity maneuvers near GPS IIF-2 (USA-230) and multiple Iridium commercial assets in low Earth orbit. Sub-satellite ejection events consistent with co-orbital ASAT testing have been detected by Space Force sensors. The object demonstrates significant delta-V capability consistent with kinetic kill vehicle deployment.",
-    intel:[
-      { ts:"15 Mar 12:41Z", src:"NRO/SIGINT", cls:"S", text:"COSMOS-2543 executed burn sequence at perigee, raising apogee by ~82km. New orbital plane intersects GPS IIF-2 trajectory on Mar 17–18 window." },
-      { ts:"14 Mar 09:18Z", src:"DIA", cls:"S//NF", text:"Sub-satellite object designated RUS-COSMOS-2543-B detected at separation distance 400m. Object maneuverable, tracking active." },
-    ],
-    pattern:{ name:"Co-Orbital ASAT Sequence", status:"ACTIVE",
-      units:[
-        { sym:"⬦", label:"COSMOS-2543",   role:"Primary Vehicle",  count:1, color:"#c0192c" },
-        { sym:"◈", label:"COSMOS-2543-B", role:"Kill Sub-Vehicle", count:1, color:"#c0192c" },
-        { sym:"⬦", label:"GPS IIF-2",     role:"Target",           count:1, color:"#2a7fc1" },
-      ]
-    }
-  },
-  {
-    id:"YAOGAN30",
-    title:"YAOGAN-30F PLA ISR Constellation",
-    classification:"SECRET",
-    affiliation:"China — PLA Strategic Support Force",
-    affColor:"#c14b2a",
-    started:"Mar 12 2026",
-    dossier:"PLA SSF Satellite Operations — Q1 2026",
-    summary:"YAOGAN-30F has completed its operational insertion into a 600km sun-synchronous orbit. The constellation now provides persistent optical and SAR coverage over key US Pacific assets including Guam, Okinawa, and the Second Island Chain. Pass frequency has increased 40% since Jan 2026.",
-    intel:[
-      { ts:"15 Mar 08:12Z", src:"NGA", cls:"S", text:"YAOGAN-30F acquired high-resolution imagery over NAS Guam during 14 Mar 22:34Z pass. Estimated resolution sub-0.5m." },
-    ],
-    pattern:{ name:"ISR Constellation Coverage", status:"PERSISTENT",
-      units:[
-        { sym:"⬦", label:"YAOGAN-30F", role:"Imaging Sat",   count:1, color:"#c14b2a" },
-        { sym:"⬦", label:"YAOGAN-30E", role:"Imaging Sat",   count:1, color:"#c14b2a" },
-        { sym:"□", label:"2nd Island Chain", role:"Coverage Zone", count:1, color:"#2a7fc1" },
-      ]
-    }
-  },
-  {
-    id:"ISS",
-    title:"ISS Station-Keeping Operations",
-    classification:"UNCLASSIFIED//FOR OFFICIAL USE ONLY",
-    affiliation:"NASA / Roscosmos",
-    affColor:"#2a7fc1",
-    started:"Mar 10 2026",
-    dossier:"ISS Operations Daily Brief",
-    summary:"International Space Station continues nominal operations at 408km altitude. Current crew of 7 conducting microgravity experiments. Station has completed 3 reboost maneuvers this quarter to maintain orbital altitude. No conjunction threats above threshold.",
-    intel:[
-      { ts:"15 Mar 06:00Z", src:"NASA JSC", cls:"U//FOUO", text:"ISS altitude: 408.2km. Crew nominal. Next EVA scheduled Mar 20. Power systems at 98% capacity." },
-    ],
-    pattern:{ name:"Station Operations", status:"ROUTINE",
-      units:[
-        { sym:"⬦", label:"ISS", role:"Space Station", count:1, color:"#2a7fc1" },
-        { sym:"▲", label:"Crew-9", role:"Crew Transport", count:1, color:"#44ffaa" },
-      ]
-    }
-  }
+  { id:"COSMOS2543", classification:"SECRET//NOFORN",              affColor:"#c0192c" },
+  { id:"YAOGAN30",   classification:"SECRET",                      affColor:"#c14b2a" },
+  { id:"ISS",        classification:"UNCLASSIFIED//FOR OFFICIAL USE ONLY", affColor:"#2a7fc1" },
 ];
 
 // ── Fallback TLEs ─────────────────────────────────────────────────────────────
@@ -174,7 +117,7 @@ function HighlightText({text}){
       if(typeof p.t!=="string")return[p];
       const segs=p.t.split(new RegExp(`(${ent.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"));
       return segs.map((s,i)=>({
-        t:i%2===1?<mark key={`e${ei}p${pi}s${i}`} style={{background:"#cce3f5",color:"#1a4a7a",borderRadius:1,padding:"0 2px",fontWeight:600}}>{s}</mark>:s,
+        t:i%2===1?<mark key={`e${ei}p${pi}s${i}`} style={{background:"rgba(42,143,192,0.25)",color:"#7ec8e8",borderRadius:1,padding:"0 2px",fontWeight:600}}>{s}</mark>:s,
         k:`e${ei}p${pi}s${i}`,
       }));
     });
@@ -199,7 +142,7 @@ function ClassBanner({cls}){
 function MilUnit({sym,label,role,count,color}){
   return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-      <div style={{width:40,height:40,border:`2px solid ${color}`,borderRadius:2,display:"flex",alignItems:"center",justifyContent:"center",background:"white",position:"relative",boxShadow:`0 1px 4px ${color}22`}}>
+      <div style={{width:40,height:40,border:`2px solid ${color}`,borderRadius:2,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.4)",position:"relative",boxShadow:`0 1px 4px ${color}22`}}>
         <span style={{fontSize:18,color}}>{sym}</span>
         {count>1&&<div style={{position:"absolute",top:-6,right:-6,width:16,height:16,borderRadius:"50%",background:"#2a7fc1",color:"white",fontSize:8,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"monospace"}}>{count}x</div>}
       </div>
@@ -266,7 +209,7 @@ export default function GothamOrbital(){
 
   const [ready,     setReady]     = useState(false);
   const [tleStatus, setTleStatus] = useState("loading");
-  const [bUrl,      setBUrl]      = useState("http://16.16.251.215:8080");
+  const [bUrl, setBUrl] = useState(import.meta.env.VITE_BACKEND_URL || "/api");
   const [bSec,      setBSec]      = useState("");
   const [groq,      setGroq]      = useState("");
   const [tavily,    setTavily]    = useState("");
@@ -278,12 +221,19 @@ export default function GothamOrbital(){
   const [nlR,       setNlR]       = useState(null);
   const [nlLoad,    setNlLoad]    = useState(false);
   const [alerts,    setAlerts]    = useState([]);
-  const [showCfg,   setShowCfg]   = useState(true);
   const [tab,       setTab]       = useState("summary");
   const [activeSit, setActiveSit] = useState(SITUATIONS[0]);
   const [search,    setSearch]    = useState("");
   const [clock,     setClock]     = useState("");
-  const [pingOk,    setPingOk]    = useState(null);
+  const [classification, setClassification] = useState("SECRET//NOFORN");
+  const [leftPanelOpen,  setLeftPanelOpen]  = useState(true);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [intelText,      setIntelText]      = useState("");
+  const [intelLoading,   setIntelLoading]   = useState(false);
+  const [intelSitId,     setIntelSitId]     = useState(null);
+  const [tabLiveText,    setTabLiveText]    = useState({intel:"",sigact:""});
+  const [tabLiveLoading, setTabLiveLoading] = useState({intel:false,sigact:false});
+  const [tabLiveSitId,   setTabLiveSitId]   = useState({intel:null,sigact:null});
   const [agents, setAgents] = useState([
     {id:"orbital",name:"ORBITAL MONITOR",   status:"idle",output:""},
     {id:"news",   name:"GEOPOLITICAL FEED", status:"idle",output:""},
@@ -291,6 +241,78 @@ export default function GothamOrbital(){
   ]);
 
   useEffect(()=>{const iv=setInterval(()=>setClock(new Date().toUTCString()),1000);return()=>clearInterval(iv);},[]);
+
+  // ── Live Intel Overview fetch ──────────────────────────────────────────────
+  const fetchIntelOverview = useCallback(async(sit)=>{
+    if(!sit)return;
+    setIntelLoading(true);
+    setIntelSitId(sit.id);
+    try{
+      const snap = SAT_CATALOG.map(m=>{
+        const s=satrecsRef.current[m.id];if(!s)return null;
+        const p=propagate(s,new Date());if(!p)return null;
+        return`${m.id}(${m.owner},T${m.threat}): lat=${p.lat.toFixed(2)} lon=${p.lon.toFixed(2)} alt=${p.alt.toFixed(0)}km`;
+      }).filter(Boolean).join("\n");
+      const q=`Provide a concise 3-sentence operational intelligence summary for satellite ${sit.id} (classification: ${sit.classification}). Focus on current threat posture, orbital behavior, and risk to US/allied assets based on the live satellite snapshot.`;
+      const{response}=await apiQuery(bUrl,bSec,groq,tavily,q,snap);
+      setIntelText(response);
+    }catch{
+      setIntelText("");
+    }
+    setIntelLoading(false);
+  },[bUrl,bSec,groq,tavily]);
+
+  // Re-fetch when active situation changes
+  useEffect(()=>{ fetchIntelOverview(activeSit); },[activeSit]);// eslint-disable-line
+
+  // Re-fetch after each completed agent cycle (only if monitor is running)
+  useEffect(()=>{ if(running&&cycle>0) fetchIntelOverview(activeSit); },[cycle]);// eslint-disable-line
+
+  // ── Live tab content (Intel / SIGACTs) ────────────────────────────────────
+  const fetchTabContent = useCallback(async(sit, tabName)=>{
+    if(!sit||!groq) return;
+    setTabLiveLoading(p=>({...p,[tabName]:true}));
+    setTabLiveSitId(p=>({...p,[tabName]:sit.id}));
+    try{
+      const snap = SAT_CATALOG.map(m=>{
+        const s=satrecsRef.current[m.id]; if(!s)return null;
+        const p=propagate(s,new Date()); if(!p)return null;
+        return`${m.id}(${m.owner},T${m.threat}): lat=${p.lat.toFixed(2)} lon=${p.lon.toFixed(2)} alt=${p.alt.toFixed(0)}km`;
+      }).filter(Boolean).join("\n");
+      const prompts = {
+        intel: `You are a space intelligence analyst. For satellite object ${sit.id} (classification: ${sit.classification}), provide 3-4 structured intelligence reports covering recent orbital activity, threat assessment, and operational significance. Format each as: [TIMESTAMP] SOURCE: text. Be concise and technical.`,
+        sigact: `You are a space domain awareness operator. For object ${sit.id}, generate 4-5 significant activity entries in chronological order (most recent first). Format each as JSON array: [{ts, type, cls, src, title, body, color}] where color is a hex code based on severity (red=#c0192c, amber=#ff8800, yellow=#f0c040). Types: MANEUVER, SEPARATION, TRACK INIT, CONJUNCTION, LAUNCH PHASE. Return only the JSON array, no markdown.`,
+      };
+      const out = await apiAgent(bUrl,bSec,groq,tavily,"analyst",prompts[tabName],snap);
+      setTabLiveText(p=>({...p,[tabName]:out}));
+    }catch(e){
+      setTabLiveText(p=>({...p,[tabName]:`[Backend unavailable: ${e.message}]`}));
+    }
+    setTabLiveLoading(p=>({...p,[tabName]:false}));
+  },[bUrl,bSec,groq,tavily]);
+
+  // ── Real conjunction distances from live SGP4 positions ───────────────────
+  function computeConjunctions(){
+    const now = new Date();
+    const positions = {};
+    SAT_CATALOG.forEach(m=>{
+      const s=satrecsRef.current[m.id]; if(!s)return;
+      const p=propagate(s,now); if(!p)return;
+      // Convert to ECEF km for distance calc
+      const R=6371+p.alt;
+      const lat=p.lat*Math.PI/180, lon=p.lon*Math.PI/180;
+      positions[m.id]={x:R*Math.cos(lat)*Math.cos(lon),y:R*Math.cos(lat)*Math.sin(lon),z:R*Math.sin(lat),meta:m};
+    });
+    const pairs=[];
+    const ids=Object.keys(positions);
+    for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++){
+      const a=positions[ids[i]], b=positions[ids[j]];
+      const dx=a.x-b.x, dy=a.y-b.y, dz=a.z-b.z;
+      const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(dist<1500) pairs.push({obj1:ids[i],obj2:ids[j],dca:dist.toFixed(0),risk:dist<200?3:dist<500?2:dist<1000?1:0});
+    }
+    return pairs.sort((a,b)=>a.dca-b.dca).slice(0,5);
+  }
 
   const pushAlert  = useCallback((msg,lvl=1)=>setAlerts(p=>[{msg,lvl,ts:new Date().toISOString().slice(11,19)},...p].slice(0,30)),[]);
   const patchAgent = useCallback((id,patch)=>setAgents(p=>p.map(a=>a.id===id?{...a,...patch}:a)),[]);
@@ -360,7 +382,10 @@ export default function GothamOrbital(){
       dead=true;
       if(updateTimer.current)clearInterval(updateTimer.current);
       if(agentTimer.current)clearInterval(agentTimer.current);
-      if(viewerRef.current&&!viewerRef.current.isDestroyed())viewerRef.current.destroy();
+      if(viewerRef.current){
+        if(viewerRef.current._rotateInterval) clearInterval(viewerRef.current._rotateInterval);
+        if(!viewerRef.current.isDestroyed())viewerRef.current.destroy();
+      }
     };
   },[]); // eslint-disable-line
 
@@ -370,7 +395,7 @@ export default function GothamOrbital(){
     if(!Cesium||!cesiumContainerRef.current)return;
 
     // Suppress Ion token warning with a placeholder (not used — offline imagery only)
-    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc4ZTEiLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk";
+    Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_TOKEN || "";
 
     const viewer = new Cesium.Viewer(cesiumContainerRef.current,{
       baseLayerPicker:      false,
@@ -417,14 +442,27 @@ export default function GothamOrbital(){
 
     // ── Auto-rotation: slowly spin the globe when user isn't interacting ──
     let isUserInteracting = false;
-    viewer.scene.canvas.addEventListener("mousedown", ()=>{ isUserInteracting = true; });
-    viewer.scene.canvas.addEventListener("mouseup",   ()=>{ setTimeout(()=>{ isUserInteracting = false; }, 2000); });
-    viewer.scene.canvas.addEventListener("wheel",     ()=>{ isUserInteracting = true; setTimeout(()=>{ isUserInteracting = false; }, 3000); });
-    viewer.clock.onTick.addEventListener(()=>{
-      if(!isUserInteracting && !viewerRef.current?.isDestroyed()){
-        viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.00008);
+    let interactTimer = null;
+    const setInteracting = (val) => {
+      isUserInteracting = val;
+      if(val) {
+        clearTimeout(interactTimer);
+        interactTimer = setTimeout(()=>{ isUserInteracting = false; }, 3000);
       }
-    });
+    };
+    viewer.scene.canvas.addEventListener("mousedown",  ()=> setInteracting(true));
+    viewer.scene.canvas.addEventListener("touchstart", ()=> setInteracting(true), {passive:true});
+    viewer.scene.canvas.addEventListener("wheel",      ()=> setInteracting(true), {passive:true});
+
+    // Use setInterval — more reliable than clock.onTick for steady rotation
+    const rotateInterval = setInterval(()=>{
+      if(!isUserInteracting && viewerRef.current && !viewerRef.current.isDestroyed()){
+        viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.00012);
+      }
+    }, 33); // ~30fps
+
+    // Store for cleanup
+    viewer._rotateInterval = rotateInterval;
 
     // ── Add satellite entities ──
     SAT_CATALOG.forEach(meta=>{
@@ -584,11 +622,18 @@ export default function GothamOrbital(){
     if(!Cesium||!viewer)return;
     const p = posRef.current[satId];
     if(!p)return;
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt*1000+3000000),
-      orientation:{ heading:0, pitch:-Math.PI/3, roll:0 },
-      duration: 2,
-    });
+    // Fly to a position 2500km behind+above the sat at a ~35° downward pitch
+    // so the satellite dot is clearly visible against the globe
+    const satCart = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt * 1000);
+    const offset = new Cesium.HeadingPitchRange(
+      0,                          // heading: north-up
+      Cesium.Math.toRadians(-25), // pitch: 25° below horizon — sat visible in lower frame
+      3800000                     // range: ~3800km back — globe fills frame nicely
+    );
+    viewer.camera.flyToBoundingSphere(
+      new Cesium.BoundingSphere(satCart, 1),
+      { offset, duration: 2.2, easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT }
+    );
   }
 
   function flyHome(){
@@ -697,15 +742,15 @@ export default function GothamOrbital(){
           if(sit){setActiveSit(sit);setTab("summary");}
           if(window.Cesium&&viewerRef.current) highlightSat(window.Cesium,m.id);
         }
-      }} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 12px",cursor:"pointer",background:sel?"rgba(42,127,193,0.07)":"transparent",borderBottom:"1px solid #e8ecf0",borderLeft:`3px solid ${sel?m.color:"transparent"}`,transition:"background 0.1s"}}>
+      }} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 12px",cursor:"pointer",background:sel?"rgba(42,143,192,0.1)":"transparent",borderBottom:"1px solid rgba(255,255,255,0.05)",borderLeft:`3px solid ${sel?m.color:"transparent"}`,transition:"background 0.1s"}}>
         <div style={{width:7,height:7,borderRadius:"50%",flexShrink:0,background:m.color,boxShadow:`0 0 3px ${m.color}88`}}/>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:11,fontWeight:600,color:sel?"#1a4a7a":"#1e2830",letterSpacing:0.3}}>{m.id}</div>
-          <div style={{fontSize:9.5,color:"#6a7a88",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.owner}</div>
+          <div style={{fontSize:11,fontWeight:600,color:sel?"#7ec8e8":"#9ab8cc",letterSpacing:0.3}}>{m.id}</div>
+          <div style={{fontSize:9.5,color:"rgba(200,216,232,0.35)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.owner}</div>
         </div>
         <div style={{textAlign:"right",flexShrink:0}}>
-          {p&&<div style={{fontSize:9,color:"#4a5a68",fontFamily:"monospace"}}>{p.alt.toFixed(0)}km</div>}
-          <span style={{fontSize:7.5,letterSpacing:0.5,padding:"1px 5px",background:"#f0f4f8",border:"1px solid #d0d8e0",color:"#4a5a68",borderRadius:2,fontWeight:600,display:"inline-block",marginTop:1}}>{m.type.slice(0,4)}</span>
+          {p&&<div style={{fontSize:9,color:"rgba(200,216,232,0.5)",fontFamily:"monospace"}}>{p.alt.toFixed(0)}km</div>}
+          <span style={{fontSize:7.5,letterSpacing:0.5,padding:"1px 5px",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",color:"rgba(200,216,232,0.45)",borderRadius:2,fontWeight:600,display:"inline-block",marginTop:1}}>{m.type.slice(0,4)}</span>
         </div>
       </div>
     );
@@ -724,7 +769,11 @@ export default function GothamOrbital(){
         @keyframes blt{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
-        *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:rgba(77,180,220,.08) transparent}
+        *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:rgba(77,180,220,.08) transparent;outline:none}
+        *:not(hr):not([class*="cesium"]):not([class*="Cesium"]):focus{outline:none!important;box-shadow:none}
+        *:focus-visible{outline:none!important}
+        button,input,select,textarea{outline:none!important;-webkit-tap-highlight-color:transparent}
+        button:focus,input:focus,select:focus{outline:none!important}
         ::-webkit-scrollbar{width:3px;height:3px}
         ::-webkit-scrollbar-thumb{background:rgba(77,180,220,.1);border-radius:1px}
         ::-webkit-scrollbar-track{background:transparent}
@@ -732,9 +781,9 @@ export default function GothamOrbital(){
         .cesium-widget-credits{display:none!important}
         .cesium-credit-logoContainer{display:none!important}
         .cesium-viewer-bottom{display:none!important}
-        .tbtn{background:transparent;border:1px solid rgba(200,216,232,0.14);color:rgba(200,216,232,0.5);font-family:'Share Tech Mono',monospace;font-size:8.5px;letter-spacing:1.5px;padding:3px 10px;border-radius:1px;cursor:pointer;transition:all .15s}
-        .tbtn:hover{border-color:rgba(77,217,160,0.45);color:#4dd9a0;background:rgba(77,217,160,0.06)}
-        .tbtn.active{border-color:rgba(77,217,160,0.6);color:#4dd9a0;background:rgba(77,217,160,0.1)}
+        .tbtn{background:transparent;border:1px solid rgba(77,217,160,0.4);color:rgba(200,216,232,0.7);font-family:'Share Tech Mono',monospace;font-size:8.5px;letter-spacing:1.5px;padding:4px 12px;border-radius:2px;cursor:pointer;transition:all .15s}
+        .tbtn:hover{border-color:#4dd9a0;color:#fff;background:rgba(77,217,160,0.12)}
+        .tbtn.active{border-color:#4dd9a0;color:#4dd9a0;background:rgba(77,217,160,0.15)}
         .tbtn.danger{border-color:rgba(255,68,85,0.45);color:#ff5566}
         .tbtn.danger:hover{background:rgba(255,68,85,0.1);border-color:#ff5566}
         .tbtn:disabled{opacity:.18;cursor:not-allowed}
@@ -744,27 +793,30 @@ export default function GothamOrbital(){
         .ltbtn{background:transparent;border:none;border-bottom:2px solid transparent;padding:7px 12px;cursor:pointer;font-family:'Inter',system-ui,sans-serif;font-size:10px;font-weight:500;color:rgba(200,216,232,0.3);transition:all .15s}
         .ltbtn:hover{color:rgba(200,216,232,0.65)}
         .ltbtn.on{color:#c8d8e8;border-bottom-color:#4dd9a0}
-        .dtab{background:transparent;border:none;border-bottom:2px solid transparent;padding:7px 10px;cursor:pointer;font-size:10px;font-weight:500;color:#5a6a78;transition:all .14px;font-family:'Inter',system-ui,sans-serif}
-        .dtab:hover{color:#1e2830}
-        .dtab.on{color:#1a4a7a;border-bottom-color:#2a7fc1;font-weight:600}
-        .qin{background:#fff;border:1px solid #d0d8e0;color:#1e2830;font-size:11px;padding:7px 10px;border-radius:3px;outline:none;flex:1;transition:border-color .15s;font-family:'Inter',system-ui,sans-serif}
-        .qin:focus{border-color:#2a7fc1;box-shadow:0 0 0 2px rgba(42,127,193,0.12)}
-        .qin::placeholder{color:#a0acb8}
-        .wpbtn{background:#fff;border:1px solid #d0d8e0;color:#3a4a58;font-size:11px;font-weight:500;padding:4px 12px;border-radius:3px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;font-family:'Inter',system-ui,sans-serif}
-        .wpbtn:hover{background:#f0f4f8;border-color:#aabccc;color:#1a2a38}
-        .wpbtn.primary{background:#2a7fc1;border-color:#2a7fc1;color:#fff}
-        .wpbtn.primary:hover{background:#1a6aaa}
-        .wpbtn.danger{border-color:#c0192c;color:#c0192c}
-        .wpbtn.danger:hover{background:#fde8ea}
+        .dtab{background:transparent;border:none;border-bottom:2px solid transparent;padding:7px 10px;cursor:pointer;font-size:10px;font-weight:500;color:rgba(200,216,232,0.35);transition:all .15s;font-family:'Inter',system-ui,sans-serif}
+        .dtab:hover{color:rgba(200,216,232,0.75)}
+        .dtab.on{color:#7ec8e8;border-bottom-color:#2a8fc0;font-weight:600}
+        .qin{background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.1);color:#c8d8e8;font-size:11px;padding:7px 10px;border-radius:3px;outline:none;flex:1;transition:border-color .15s;font-family:'Inter',system-ui,sans-serif}
+        .qin:focus{border-color:rgba(42,143,192,0.5);box-shadow:0 0 0 2px rgba(42,143,192,0.12)}
+        .qin::placeholder{color:rgba(200,216,232,0.2)}
+        .wpbtn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(200,216,232,0.7);font-size:11px;font-weight:600;padding:5px 12px;border-radius:3px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;font-family:'Inter',system-ui,sans-serif}
+        .wpbtn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.22);color:#c8d8e8}
+        .wpbtn.primary{background:#1a6090;border-color:#2a8fc0;color:#c8e8f8}
+        .wpbtn.primary:hover{background:#2a7fc1;box-shadow:0 2px 8px rgba(42,127,193,0.3)}
+        .wpbtn.danger{border-color:rgba(192,25,44,0.6);color:#e05565}
+        .wpbtn.danger:hover{background:rgba(192,25,44,0.15)}
         .wpbtn:disabled{opacity:.3;cursor:not-allowed}
-        .zb{width:28px;height:28px;background:rgba(6,10,18,0.85);border:1px solid rgba(200,216,232,0.15);color:rgba(200,216,232,0.5);border-radius:2px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:monospace}
-        .zb:hover{border-color:rgba(77,217,160,0.5);color:#4dd9a0;background:rgba(77,217,160,0.08)}
-        .sin{background:#fff;border:1px solid #d0d8e0;border-radius:3px;padding:6px 10px 6px 28px;font-size:11px;color:#1e2830;outline:none;width:100%;transition:border-color .15s;font-family:'Inter',system-ui,sans-serif}
-        .sin:focus{border-color:#2a7fc1;box-shadow:0 0 0 2px rgba(42,127,193,0.12)}
-        .sin::placeholder{color:#a0acb8}
+        .zb{width:32px;height:32px;background:rgba(0,0,0,0.6);border:1px solid rgba(77,217,160,0.3);color:rgba(200,216,232,0.6);border-radius:2px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:monospace;font-weight:bold}
+        .zb:hover{border-color:#4dd9a0;color:#fff;background:rgba(77,217,160,0.15);box-shadow:0 0 10px rgba(77,217,160,0.2)}
+        .sin{background:rgba(0,0,0,0.35);border:1.5px solid rgba(255,255,255,0.1);border-radius:3px;padding:6px 10px 6px 28px;font-size:11px;color:#c8d8e8;outline:none;width:100%;transition:border-color .15s;font-family:'Inter',system-ui,sans-serif}
+        .sin:focus{border-color:rgba(42,143,192,0.5);box-shadow:0 0 0 3px rgba(42,143,192,0.12)}
+        .sin::placeholder{color:rgba(200,216,232,0.22)}
         /* Fix Cesium canvas */
         #cesium-container{width:100%;height:100%}
         #cesium-container canvas{width:100%!important;height:100%!important}
+        /* Hard reset any inherited browser outline/border artifacts */
+        html,body{margin:0;padding:0;border:none;outline:none;background:#0a0e14}
+        div,span,button,input,select{outline:none!important}
       `}</style>
 
       {/* ══ DARK TOPBAR ══════════════════════════════════════════════════════ */}
@@ -804,11 +856,11 @@ export default function GothamOrbital(){
 
         {/* Metal prices */}
         <div style={{display:"flex",alignItems:"center",gap:14,marginRight:12,paddingRight:12,borderRight:"1px solid rgba(255,255,255,0.07)"}}>
-          {[{sym:"GOLD",val:metals.gold,d:metals.gd,c:"#f0c040",dp:2},{sym:"SILVER",val:metals.silver,d:metals.sd,c:"#aabccc",dp:3}].map(m=>(
-            <div key={m.sym} style={{display:"flex",alignItems:"center",gap:5}}>
+          {[{label:"Gold",val:metals.gold,d:metals.gd,c:"#f0c040",dp:2},{label:"Silver",val:metals.silver,d:metals.sd,c:"#aabccc",dp:3}].map(m=>(
+            <div key={m.label} style={{display:"flex",alignItems:"center",gap:5}}>
               <div style={{width:4,height:4,borderRadius:"50%",background:m.c,boxShadow:`0 0 4px ${m.c}88`}}/>
-              <span style={{fontSize:7,color:"rgba(200,216,232,0.28)",letterSpacing:1.5,fontFamily:"monospace"}}>{m.sym}</span>
-              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:13,color:m.c}}>
+              <span style={{fontSize:8,color:"rgba(200,216,232,0.5)",letterSpacing:0.5,fontFamily:"system-ui",fontWeight:500}}>{m.label}</span>
+              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:12,color:m.c}}>
                 ${m.val.toLocaleString("en",{minimumFractionDigits:m.dp,maximumFractionDigits:m.dp})}
               </span>
               <span style={{fontSize:8,color:m.d>=0?"#4dd9a0":"#ff6666",fontFamily:"monospace"}}>{m.d>=0?"▲":"▼"}{Math.abs(m.d).toFixed(m.dp)}</span>
@@ -824,83 +876,100 @@ export default function GothamOrbital(){
             ?<button className="tbtn active" onClick={startMonitor} disabled={!ready||!groq}>▶ INITIATE</button>
             :<button className="tbtn danger" onClick={stopMonitor}>■ HALT</button>
           }
-          <button className="tbtn" onClick={()=>setShowCfg(s=>!s)} style={{padding:"3px 7px"}}>⚙</button>
         </div>
 
-        <div style={{marginLeft:"auto",textAlign:"right",flexShrink:0}}>
-          <div style={{fontSize:7,color:"rgba(200,216,232,0.2)",letterSpacing:1,fontFamily:"monospace"}}>{clock}</div>
-          <div style={{fontSize:7,color:running?"#4dd9a0":"rgba(200,216,232,0.14)",letterSpacing:2,fontFamily:"monospace"}}>
-            CYCLE {String(cycle).padStart(4,"0")} {running?"● LIVE":"○ IDLE"}
+        <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+          {/* Classification selector */}
+          {(()=>{
+            const cls=classification;
+            const isSecret=cls.includes("SECRET")&&!cls.includes("UNCLASSIFIED");
+            const isU=cls.includes("UNCLASSIFIED");
+            const dotColor=isSecret?"#ff3344":isU?"#44cc88":"#f0c040";
+            const textColor=isSecret?"#ff6677":isU?"#66ddaa":"#f0c040";
+            return(
+              <div style={{display:"flex",alignItems:"center",gap:6,paddingRight:8,borderRight:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{width:5,height:5,borderRadius:"50%",background:dotColor,boxShadow:`0 0 5px ${dotColor}88`,flexShrink:0}}/>
+                <select value={classification} onChange={e=>setClassification(e.target.value)}
+                  style={{background:"transparent",border:"none",color:textColor,fontFamily:"'Share Tech Mono',monospace",fontSize:8.5,letterSpacing:1.5,fontWeight:700,cursor:"pointer",outline:"none",appearance:"none",WebkitAppearance:"none",padding:"0 2px"}}>
+                  <option value="SECRET//NOFORN"           style={{background:"#1a0a10",color:"#ff6677"}}>SECRET//NOFORN</option>
+                  <option value="SECRET"                   style={{background:"#1a0a10",color:"#ff6677"}}>SECRET</option>
+                  <option value="SECRET//REL TO USA, FVEY" style={{background:"#1a0a10",color:"#ff9966"}}>SECRET//REL TO USA, FVEY</option>
+                  <option value="CONFIDENTIAL"             style={{background:"#100a1a",color:"#cc88ff"}}>CONFIDENTIAL</option>
+                  <option value="UNCLASSIFIED//FOUO"       style={{background:"#0a1a10",color:"#66ddaa"}}>UNCLASSIFIED//FOUO</option>
+                  <option value="UNCLASSIFIED"             style={{background:"#0a1a10",color:"#66ddaa"}}>UNCLASSIFIED</option>
+                </select>
+              </div>
+            );
+          })()}
+          {/* Panel toggles */}
+          <button onClick={()=>setLeftPanelOpen(o=>!o)} title={leftPanelOpen?"Hide left panel":"Show left panel"}
+            style={{width:20,height:20,background:"transparent",border:"1px solid rgba(200,216,232,0.12)",borderRadius:2,cursor:"pointer",color:"rgba(200,216,232,0.35)",fontSize:9,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",fontFamily:"monospace"}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="#4dd9a0";e.currentTarget.style.color="#4dd9a0";}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(200,216,232,0.12)";e.currentTarget.style.color="rgba(200,216,232,0.35)";}}>
+            {leftPanelOpen?"◀":"▶"}
+          </button>
+          <button onClick={()=>setRightPanelOpen(o=>!o)} title={rightPanelOpen?"Hide right panel":"Show right panel"}
+            style={{width:20,height:20,background:"transparent",border:"1px solid rgba(200,216,232,0.12)",borderRadius:2,cursor:"pointer",color:"rgba(200,216,232,0.35)",fontSize:9,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",fontFamily:"monospace"}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="#4dd9a0";e.currentTarget.style.color="#4dd9a0";}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(200,216,232,0.12)";e.currentTarget.style.color="rgba(200,216,232,0.35)";}}>
+            {rightPanelOpen?"▶":"◀"}
+          </button>
+          {/* Clock */}
+          <div style={{textAlign:"right",paddingLeft:8,borderLeft:"1px solid rgba(255,255,255,0.07)"}}>
+            <div style={{fontSize:7,color:"rgba(200,216,232,0.2)",letterSpacing:1,fontFamily:"monospace"}}>{clock}</div>
+            <div style={{fontSize:7,color:running?"#4dd9a0":"rgba(200,216,232,0.14)",letterSpacing:2,fontFamily:"monospace"}}>
+              CYCLE {String(cycle).padStart(4,"0")} {running?"● LIVE":"○ IDLE"}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Config bar */}
-      {showCfg&&(
-        <div style={{padding:"7px 14px",background:"#0f1822",borderBottom:"1px solid rgba(240,192,64,0.12)",display:"flex",alignItems:"flex-end",gap:10,flexShrink:0,flexWrap:"wrap"}}>
-          <span style={{fontSize:8,color:"rgba(240,192,64,0.5)",letterSpacing:2,alignSelf:"center"}}>⚙ CONFIG</span>
-          <div style={{display:"flex",flexDirection:"column",gap:2}}>
-            <label style={{fontSize:7,color:"rgba(200,216,232,0.22)",letterSpacing:1.5}}>BACKEND URL</label>
-            <input className="kin" style={{width:280}} value={bUrl} onChange={e=>setBUrl(e.target.value)} placeholder=""/>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:2}}>
-            <label style={{fontSize:7,color:"rgba(200,216,232,0.22)",letterSpacing:1.5}}>SECRET</label>
-            <input className="kin" type="password" style={{width:150}} value={bSec} onChange={e=>setBSec(e.target.value)} placeholder="optional"/>
-          </div>
-          <button className="tbtn" onClick={async()=>{
-            try{const r=await fetch(`${bUrl}/health`,{headers:{"x-api-key":bSec}});setPingOk(r.ok);pushAlert(r.ok?"Backend reachable":"non-200",r.ok?0:2);}
-            catch(e){setPingOk(false);pushAlert(`Unreachable: ${e.message}`,3);}
-          }}>PING</button>
-          {pingOk!==null&&<span style={{fontSize:8,color:pingOk?"#4dd9a0":"#ff4455",letterSpacing:1}}>{pingOk?"● CONNECTED":"● UNREACHABLE"}</span>}
-          <button className="tbtn" onClick={retryTle} style={{marginLeft:8}}>↻ RETRY TLEs</button>
-          {tleStatus!=="live"&&<span style={{fontSize:8,color:"rgba(240,192,64,0.6)",letterSpacing:1}}>TLE: {tleStatus.toUpperCase()}</span>}
-        </div>
-      )}
-
-      {/* ══ MAIN — sidebar + left panel + cesium ═══════════════════════════ */}
+      {/* ══ MAIN — left panel + cesium + right panel ═════════════════════════ */}
       <div style={{flex:1,display:"flex",minHeight:0}}>
 
-        {/* Icon sidebar */}
-        <div style={{width:44,flexShrink:0,background:"#111822",borderRight:"1px solid #0a1218",display:"flex",flexDirection:"column",alignItems:"center",padding:"8px 0",gap:2}}>
-          {[{icon:"◉",title:"Globe",active:true},{icon:"▤",title:"Catalog"},{icon:"⚡",title:"Alerts"},{icon:"◈",title:"Objects"},{icon:"⬡",title:"Network"},{icon:"◎",title:"Analysis"}].map((item,i)=>(
-            <button key={i} title={item.title} style={{width:32,height:32,background:item.active?"rgba(42,127,193,0.22)":"transparent",border:`1px solid ${item.active?"rgba(42,127,193,0.45)":"transparent"}`,borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:item.active?"#7ec4f0":"rgba(255,255,255,0.2)",fontSize:13,transition:"all .15s"}}
-              onMouseEnter={e=>{if(!item.active){e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.color="rgba(255,255,255,0.5)";}}}
-              onMouseLeave={e=>{if(!item.active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.2)";}}}
-            >{item.icon}</button>
-          ))}
-          <div style={{flex:1}}/>
-          {[{icon:"⚙"},{icon:"?"}].map((item,i)=>(
-            <button key={i} style={{width:32,height:32,background:"transparent",border:"1px solid transparent",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"rgba(255,255,255,0.18)",fontSize:13,transition:"all .15s"}}
-              onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.color="rgba(255,255,255,0.45)";}}
-              onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.18)";}}
-            >{item.icon}</button>
-          ))}
-        </div>
-
         {/* Left panel */}
-        <div style={{width:310,flexShrink:0,background:"#fff",borderRight:"1px solid #d8e0e8",display:"flex",flexDirection:"column",minHeight:0,boxShadow:"2px 0 8px rgba(0,0,0,0.12)"}}>
+        <div style={{width:leftPanelOpen?310:0,flexShrink:0,background:"#0b1520",borderRight:leftPanelOpen?"1px solid rgba(255,255,255,0.07)":"none",display:"flex",flexDirection:"column",minHeight:0,boxShadow:leftPanelOpen?"2px 0 12px rgba(0,0,0,0.4)":"none",overflow:"hidden",transition:"width .2s ease"}}>
 
-          {/* Situation header */}
+          {/* Situation selector header */}
           {sit&&(
-            <div style={{flexShrink:0}}>
-              <ClassBanner cls={sit.classification}/>
-              <div style={{padding:"10px 14px 0"}}>
-                <div style={{display:"flex",alignItems:"flex-start",gap:10,paddingBottom:8}}>
-                  <div style={{width:44,height:44,background:"#f0f4f8",border:"1px solid #d0d8e0",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <span style={{fontSize:20,color:"#4a6a88"}}>🛰</span>
+            <div style={{flexShrink:0,borderBottom:"1px solid rgba(255,255,255,0.07)",background:"#0d1828"}}>
+              <div style={{padding:"8px 12px 0"}}>
+                {/* Situation switcher pills */}
+                <div style={{display:"flex",gap:4,marginBottom:8,flexWrap:"wrap"}}>
+                  {SITUATIONS.map(s=>{
+                    const tm=THREAT_META[SAT_CATALOG.find(c=>c.id===s.id)?.threat||0];
+                    const active=activeSit?.id===s.id;
+                    return(
+                      <button key={s.id} onClick={()=>{setActiveSit(s);setTab("summary");}} style={{flex:1,minWidth:0,background:active?"#1a2d42":"rgba(255,255,255,0.04)",border:`1px solid ${active?"#2a5070":"rgba(255,255,255,0.1)"}`,borderRadius:3,padding:"5px 8px",cursor:"pointer",transition:"all .15s",textAlign:"left"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:2}}>
+                          <div style={{width:5,height:5,borderRadius:"50%",background:tm.color,flexShrink:0,boxShadow:active?`0 0 5px ${tm.color}88`:"none"}}/>
+                          <span style={{fontSize:8,fontWeight:700,color:active?"#c8d8e8":"rgba(200,216,232,0.4)",letterSpacing:0.5,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.id}</span>
+                        </div>
+                        <div style={{fontSize:7,color:active?"rgba(200,216,232,0.4)":"rgba(200,216,232,0.2)",letterSpacing:0.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.classification}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Active situation title row */}
+                <div style={{display:"flex",alignItems:"flex-start",gap:8,paddingBottom:8}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
+                      {(()=>{const tm=THREAT_META[SAT_CATALOG.find(c=>c.id===sit.id)?.threat||0];return(
+                        <span style={{fontSize:7,fontWeight:700,letterSpacing:1.5,padding:"2px 6px",background:tm.color+"22",color:tm.color,border:`1px solid ${tm.color}44`,borderRadius:2}}>{tm.label}</span>
+                      );})()}
+                      <span style={{fontSize:7,color:"rgba(200,216,232,0.3)",letterSpacing:1,fontFamily:"monospace"}}>{sit.classification}</span>
+                    </div>
+                    {(()=>{const m=SAT_CATALOG.find(c=>c.id===sit.id); return(<>
+                      <div style={{fontSize:12,fontWeight:700,color:"#c8d8e8",lineHeight:1.25,marginBottom:2}}>{m?.name||sit.id}</div>
+                      <div style={{fontSize:9,color:sit.affColor,fontWeight:600}}>{m?.owner||"—"} · {m?.type||"—"}</div>
+                    </>);})()}
                   </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:7.5,color:"#8a9aaa",letterSpacing:1.5,marginBottom:2}}>ORBITAL SITUATIONS</div>
-                    <div style={{fontSize:13,fontWeight:700,color:"#1e2830",lineHeight:1.2}}>{sit.title}</div>
-                    <div style={{fontSize:10,color:"#6a7a88",marginTop:2}}>Situation</div>
-                  </div>
-                  <button className="wpbtn primary" style={{fontSize:10,padding:"4px 10px",flexShrink:0}}>Explore plans</button>
                 </div>
                 {/* Tabs */}
-                <div style={{display:"flex",gap:0,borderTop:"1px solid #eef1f4"}}>
-                  {["summary","intel","agents","query","properties"].map(t=>(
-                    <button key={t} className={`dtab ${tab===t?"on":""}`} onClick={()=>setTab(t)} style={{fontSize:10,padding:"6px 9px",textTransform:"capitalize"}}>
-                      {t.charAt(0).toUpperCase()+t.slice(1)}
+                <div style={{display:"flex",gap:0,borderTop:"1px solid rgba(255,255,255,0.07)",margin:"0 -12px"}}>
+                  {["summary","intel","agents","query","sigact"].map(t=>(
+                    <button key={t} className={`dtab ${tab===t?"on":""}`} onClick={()=>setTab(t)} style={{fontSize:9.5,padding:"6px 8px",textTransform:"capitalize",flex:1}}>
+                      {t==="sigact"?"SIGACTs":t.charAt(0).toUpperCase()+t.slice(1)}
                     </button>
                   ))}
                 </div>
@@ -909,39 +978,65 @@ export default function GothamOrbital(){
           )}
 
           {/* Search */}
-          <div style={{padding:"7px 12px",borderBottom:"1px solid #eef1f4",flexShrink:0,position:"relative"}}>
-            <span style={{position:"absolute",left:20,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"#a0acb8",pointerEvents:"none"}}>🔍</span>
+          <div style={{padding:"7px 12px",borderBottom:"1px solid rgba(255,255,255,0.07)",flexShrink:0,position:"relative"}}>
+            <span style={{position:"absolute",left:20,top:"50%",transform:"translateY(-50%)",fontSize:11,color:"rgba(200,216,232,0.25)",pointerEvents:"none"}}>🔍</span>
             <input className="sin" placeholder="Filter by satellite ID, owner..." value={search} onChange={e=>setSearch(e.target.value)}/>
           </div>
 
           {/* SUMMARY TAB */}
           {tab==="summary"&&sit&&(
-            <div style={{flex:1,overflowY:"auto",minHeight:0}}>
-              <div style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4"}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:3,height:10,background:"#2a7fc1",borderRadius:1,display:"inline-block"}}/>DETAILS
+            <div style={{flex:1,overflowY:"auto",minHeight:0,background:"#0b1520"}}>
+              {/* Orbital snapshot */}
+              <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>
+                  <span style={{width:3,height:10,background:"#2a8fc0",borderRadius:1,display:"inline-block"}}/>ORBITAL SNAPSHOT
                 </div>
-                <div style={{display:"flex",gap:10,marginBottom:8}}>
-                  <div style={{width:80,height:60,background:"linear-gradient(135deg,#0a1828 0%,#1a3048 50%,#0a2038 100%)",border:"1px solid #d0d8e0",borderRadius:2,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <div style={{textAlign:"center"}}><div style={{fontSize:20}}>🛰️</div><div style={{fontSize:7,color:"rgba(255,255,255,0.4)",letterSpacing:1}}>{sit.id}</div></div>
-                  </div>
-                  <div style={{flex:1}}>
-                    {[
-                      ["Affiliation",<span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:8,height:8,background:sit.affColor,borderRadius:1,display:"inline-block"}}/>{sit.affiliation}</span>],
-                      ["Expected start",sit.started],
-                      ["Dossier",<span style={{color:"#2a7fc1",cursor:"pointer"}}>📄 {sit.dossier}</span>],
-                    ].map(([k,v])=>(
-                      <div key={k} style={{display:"flex",gap:8,marginBottom:5,alignItems:"flex-start"}}>
-                        <div style={{fontSize:10,color:"#6a7a88",width:88,flexShrink:0}}>{k}</div>
-                        <div style={{fontSize:10,color:"#1e2830",fontWeight:500,flex:1}}>{v}</div>
+                {(()=>{
+                  const m=SAT_CATALOG.find(c=>c.id===sit.id);
+                  const p=posRef.current[sit.id];
+                  const satrec=m&&satrecsRef.current[m.id];
+                  const period=satrec?getPeriodMinutes(satrec):null;
+                  const nextPass=period?Math.round((period-(Date.now()/60000)%period+period)%period):null;
+                  return(
+                    <div>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,marginBottom:8}}>
+                        {[
+                          {label:"ALT",value:p?`${p.alt.toFixed(0)} km`:"—",color:"#2a7fc1"},
+                          {label:"LAT",value:p?`${p.lat.toFixed(2)}°`:"—",color:"#2a7fc1"},
+                          {label:"LON",value:p?`${p.lon.toFixed(2)}°`:"—",color:"#2a7fc1"},
+                          {label:"PERIOD",value:period?`${period.toFixed(1)} min`:"—",color:"#8a3800"},
+                          {label:"TYPE",value:m?.type||"—",color:"#1a5c9a"},
+                          {label:"OWNER",value:m?.owner||"—",color:"#1a7a4a"},
+                        ].map(({label,value,color})=>(
+                          <div key={label} style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:2,padding:"5px 7px",minWidth:0}}>
+                            <div style={{fontSize:7,color:"rgba(200,216,232,0.3)",letterSpacing:1,marginBottom:1}}>{label}</div>
+                            <div style={{fontSize:10,fontWeight:700,color,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value}</div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                      {/* Next overpass bar */}
+                      <div style={{background:"#0a1828",borderRadius:3,padding:"7px 10px",display:"flex",alignItems:"center",justifyContent:"space-between",border:"1px solid #1a3050"}}>
+                        <div>
+                          <div style={{fontSize:7,color:"rgba(200,216,232,0.3)",letterSpacing:1.5,marginBottom:2,fontFamily:"monospace"}}>NEXT OVERPASS</div>
+                          <div style={{fontFamily:"'Share Tech Mono',monospace",fontSize:13,fontWeight:700,color:"#4dd9a0"}}>
+                            {nextPass!=null?`T−${String(Math.floor(nextPass)).padStart(2,"0")}:${String(Math.round((nextPass%1)*60)).padStart(2,"0")}`:"—"}
+                          </div>
+                        </div>
+                        <div style={{textAlign:"right"}}>
+                          <div style={{fontSize:7,color:"rgba(200,216,232,0.3)",letterSpacing:1.5,marginBottom:2,fontFamily:"monospace"}}>AFFILIATION</div>
+                          <div style={{display:"flex",alignItems:"center",gap:5,justifyContent:"flex-end"}}>
+                            <div style={{width:6,height:6,borderRadius:1,background:sit.affColor,flexShrink:0}}/>
+                            <span style={{fontSize:9,color:"rgba(200,216,232,0.7)",fontFamily:"monospace",fontWeight:600}}>{SAT_CATALOG.find(c=>c.id===sit.id)?.owner||"—"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
               <div>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",padding:"8px 14px 5px",display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:3,height:10,background:"#2a7fc1",borderRadius:1,display:"inline-block"}}/>TRACKED OBJECTS
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",padding:"8px 14px 5px",display:"flex",alignItems:"center",gap:5}}>
+                  <span style={{width:3,height:10,background:"#2a8fc0",borderRadius:1,display:"inline-block"}}/>TRACKED OBJECTS
                 </div>
                 {filteredSats.map(m=><PosRow key={m.id} m={m}/>)}
               </div>
@@ -950,23 +1045,43 @@ export default function GothamOrbital(){
 
           {/* INTEL TAB */}
           {tab==="intel"&&sit&&(
-            <div style={{flex:1,overflowY:"auto",minHeight:0}}>
-              {sit.intel.map((item,i)=>(
-                <div key={i} style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                    <div style={{width:30,height:30,background:"#f0f4f8",border:"1px solid #d0d8e0",borderRadius:2,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>📋</div>
-                    <div>
-                      <div style={{fontSize:10,fontWeight:700,color:"#1e2830"}}>INTEL REPORT — {item.cls}</div>
-                      <div style={{fontSize:9.5,color:"#6a7a88"}}>Source: {item.src}</div>
-                    </div>
-                    <div style={{marginLeft:"auto",fontSize:9,color:"#8a9aaa",fontFamily:"monospace"}}>{item.ts}</div>
-                  </div>
-                  <div style={{fontSize:10,lineHeight:1.78,color:"#2a3a48"}}><HighlightText text={item.text}/></div>
+            <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,background:"#0b1520"}}>
+              <div style={{padding:"6px 12px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+                <span style={{fontSize:7.5,color:"rgba(200,216,232,0.3)",letterSpacing:2,fontFamily:"monospace"}}>INTEL REPORTS // {sit.id}</span>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  {tabLiveLoading.intel
+                    ? <span style={{fontSize:7,color:"#4dd9a0",fontFamily:"monospace",animation:"dp 1s infinite"}}>● FETCHING</span>
+                    : tabLiveSitId.intel===sit.id&&tabLiveText.intel
+                      ? <span style={{fontSize:7,color:"#4dd9a0",fontFamily:"monospace"}}>● LIVE</span>
+                      : <span style={{fontSize:7,color:"rgba(200,216,232,0.2)",fontFamily:"monospace"}}>○ AWAITING</span>
+                  }
+                  <button onClick={()=>fetchTabContent(sit,"intel")} disabled={tabLiveLoading.intel||!groq}
+                    style={{background:"transparent",border:"1px solid rgba(255,255,255,0.12)",borderRadius:2,color:"rgba(200,216,232,0.4)",cursor:"pointer",fontSize:8,padding:"2px 7px",fontFamily:"monospace"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#4dd9a0";e.currentTarget.style.color="#4dd9a0";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";e.currentTarget.style.color="rgba(200,216,232,0.4)";}}>
+                    {tabLiveLoading.intel?"…":"↻ FETCH"}
+                  </button>
                 </div>
-              ))}
-              <div style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4"}}>
-                <div style={{fontFamily:"'Share Tech Mono',monospace",fontSize:8.5,color:"#4a5a68",letterSpacing:0.5,marginBottom:8,padding:"3px 6px",background:"#f8fafc",border:"1px solid #e8ecf0",borderRadius:2}}>(U) NOTIONAL DATA — ORBITAL INTELLIGENCE ANALYSIS</div>
-                <div style={{fontSize:10,lineHeight:1.82,color:"#2a3a48"}}><HighlightText text={sit.summary}/></div>
+              </div>
+              <div style={{flex:1,overflowY:"auto",minHeight:0,padding:"10px 14px"}}>
+                {tabLiveLoading.intel?(
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {[100,80,95,70,88].map((w,i)=>(
+                      <div key={i} style={{height:8,width:`${w}%`,background:"rgba(255,255,255,0.06)",borderRadius:2,animation:"dp 1.4s ease-in-out infinite",animationDelay:`${i*0.12}s`}}/>
+                    ))}
+                  </div>
+                ):tabLiveSitId.intel===sit.id&&tabLiveText.intel?(
+                  <div style={{fontSize:10,lineHeight:1.82,color:"rgba(200,216,232,0.65)",whiteSpace:"pre-wrap",wordBreak:"break-word"}}>
+                    <HighlightText text={tabLiveText.intel}/>
+                  </div>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:10,opacity:0.4}}>
+                    <div style={{fontSize:28}}>📡</div>
+                    <div style={{fontSize:9,color:"rgba(200,216,232,0.5)",fontFamily:"monospace",letterSpacing:1,textAlign:"center"}}>
+                      {groq?"PRESS ↻ FETCH TO LOAD LIVE INTEL":"SET GROQ KEY IN TOPBAR TO ENABLE"}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -985,7 +1100,7 @@ export default function GothamOrbital(){
                 <div style={{padding:"5px 10px 4px",fontSize:7.5,color:"rgba(200,216,232,0.25)",letterSpacing:2,fontFamily:"monospace",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>ALERTS</div>
                 {alerts.length===0?<div style={{padding:"8px 12px",fontSize:9,color:"rgba(200,216,232,0.12)",fontStyle:"italic"}}>no alerts</div>
                 :alerts.slice(0,10).map((a,i)=>(
-                  <div key={i} style={{padding:"3px 10px",fontSize:8.5,borderLeft:`2px solid ${THREAT_META[a.lvl].color}`,background:THREAT_META[a.lvl].bg,margin:"0 8px 2px",color:"#3a4a58"}}>
+                  <div key={i} style={{padding:"3px 10px",fontSize:8.5,borderLeft:`2px solid ${THREAT_META[a.lvl].color}`,background:THREAT_META[a.lvl].color+"14",margin:"0 8px 2px",borderRadius:"0 2px 2px 0",color:"rgba(200,216,232,0.65)"}}>
                     <span style={{color:THREAT_META[a.lvl].color,fontSize:7,display:"block",fontFamily:"monospace"}}>{a.ts}</span>
                     {a.msg}
                   </div>
@@ -996,9 +1111,9 @@ export default function GothamOrbital(){
 
           {/* QUERY TAB */}
           {tab==="query"&&(
-            <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0}}>
-              <div style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4",flexShrink:0}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:8}}>⌕ INTEL QUERY</div>
+            <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,background:"#0b1520"}}>
+              <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)",flexShrink:0}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:8}}>⌕ INTEL QUERY</div>
                 <div style={{display:"flex",gap:6,marginBottom:7}}>
                   <input className="qin" placeholder="Query satellite intelligence..." value={nlQ} onChange={e=>setNlQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleNL()}/>
                   <button className="wpbtn primary" style={{flexShrink:0,fontSize:10,padding:"5px 10px"}} onClick={handleNL} disabled={nlLoad||!nlQ.trim()}>
@@ -1012,31 +1127,80 @@ export default function GothamOrbital(){
                 </div>
               </div>
               <div style={{flex:1,overflowY:"auto",padding:"10px 14px",minHeight:0}}>
-                {nlLoad?<div style={{display:"flex",gap:8,alignItems:"center",color:"#2a7fc1",fontSize:10}}><div style={{width:14,height:14,border:"2px solid #d0d8e0",borderTop:"2px solid #2a7fc1",borderRadius:"50%",animation:"spin .8s linear infinite",flexShrink:0}}/>Querying...</div>
-                :nlR?<div style={{fontSize:10,lineHeight:1.82,color:"#1e2830",whiteSpace:"pre-wrap",wordBreak:"break-word"}}><HighlightText text={nlR}/></div>
-                :<div style={{fontSize:9.5,color:"#a0acb8",fontStyle:"italic"}}>Enter a query to interrogate satellite intelligence...</div>}
+                {nlLoad?<div style={{display:"flex",gap:8,alignItems:"center",color:"#4ab8f5",fontSize:10}}><div style={{width:14,height:14,border:"2px solid rgba(255,255,255,0.1)",borderTop:"2px solid #2a8fc0",borderRadius:"50%",animation:"spin .8s linear infinite",flexShrink:0}}/>Querying...</div>
+                :nlR?<div style={{fontSize:10,lineHeight:1.82,color:"rgba(200,216,232,0.7)",whiteSpace:"pre-wrap",wordBreak:"break-word"}}><HighlightText text={nlR}/></div>
+                :<div style={{fontSize:9.5,color:"rgba(200,216,232,0.2)",fontStyle:"italic"}}>Enter a query to interrogate satellite intelligence...</div>}
               </div>
             </div>
           )}
 
-          {/* PROPERTIES TAB */}
-          {tab==="properties"&&sit&&(()=>{
-            const m=SAT_CATALOG.find(s=>s.id===sit.id);
-            const p=posRef.current[sit.id];
-            return(
-              <div style={{flex:1,overflowY:"auto",padding:"12px 14px",minHeight:0}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:10}}>SATELLITE PROPERTIES</div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["Object ID",m?.id||"—"],["Name",m?.name||"—"],["Owner",m?.owner||"—"],["Type",m?.type||"—"],["Latitude",p?`${p.lat.toFixed(4)}°`:"—"],["Longitude",p?`${p.lon.toFixed(4)}°`:"—"],["Altitude",p?`${p.alt.toFixed(1)} km`:"—"],["Period",m&&satrecsRef.current[m.id]?`${getPeriodMinutes(satrecsRef.current[m.id]).toFixed(1)} min`:"—"]].map(([k,v])=>(
-                    <div key={k} style={{background:"#f8fafc",border:"1px solid #e8ecf0",borderRadius:2,padding:"7px 10px"}}>
-                      <div style={{fontSize:8,color:"#8a9aaa",letterSpacing:1,marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-                      <div style={{fontSize:11,fontWeight:600,color:"#1e2830"}}>{v}</div>
-                    </div>
-                  ))}
+          {/* SIGACT TAB */}
+          {tab==="sigact"&&sit&&(
+            <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0}}>
+              <div style={{padding:"6px 12px",background:"#0a1018",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+                <span style={{fontSize:7.5,color:"rgba(200,216,232,0.3)",letterSpacing:2,fontFamily:"monospace"}}>SIGNIFICANT ACTIVITIES // {sit.id}</span>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  {tabLiveLoading.sigact
+                    ? <span style={{fontSize:7,color:"#4dd9a0",fontFamily:"monospace",animation:"dp 1s infinite"}}>● FETCHING</span>
+                    : tabLiveSitId.sigact===sit.id&&tabLiveText.sigact
+                      ? <span style={{fontSize:7,color:"#4dd9a0",fontFamily:"monospace"}}>● LIVE</span>
+                      : <span style={{fontSize:7,color:"rgba(200,216,232,0.2)",fontFamily:"monospace"}}>○ AWAITING</span>
+                  }
+                  <button onClick={()=>fetchTabContent(sit,"sigact")} disabled={tabLiveLoading.sigact||!groq}
+                    style={{background:"transparent",border:"1px solid rgba(255,255,255,0.12)",borderRadius:2,color:"rgba(200,216,232,0.4)",cursor:"pointer",fontSize:8,padding:"2px 7px",fontFamily:"monospace"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#4dd9a0";e.currentTarget.style.color="#4dd9a0";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";e.currentTarget.style.color="rgba(200,216,232,0.4)";}}>
+                    {tabLiveLoading.sigact?"…":"↻ FETCH"}
+                  </button>
                 </div>
               </div>
-            );
-          })()}
+              <div style={{flex:1,overflowY:"auto",minHeight:0,background:"#0b1520"}}>
+                {tabLiveLoading.sigact?(
+                  <div style={{padding:"14px",display:"flex",flexDirection:"column",gap:10}}>
+                    {[100,85,90,75].map((w,i)=>(
+                      <div key={i} style={{height:52,width:`${w}%`,background:"rgba(255,255,255,0.04)",borderRadius:3,border:"1px solid rgba(255,255,255,0.06)",animation:"dp 1.4s ease-in-out infinite",animationDelay:`${i*0.15}s`}}/>
+                    ))}
+                  </div>
+                ):tabLiveSitId.sigact===sit.id&&tabLiveText.sigact?(()=>{
+                  // Try to parse JSON events, else render as plain text
+                  let events=null;
+                  try{
+                    const raw=tabLiveText.sigact.replace(/```json|```/g,"").trim();
+                    events=JSON.parse(raw);
+                  }catch{}
+                  if(events&&Array.isArray(events)) return events.map((ev,i)=>(
+                    <div key={i} style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:i===0?(ev.color||"#c0192c")+"08":"transparent"}}>
+                      <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",marginBottom:3}}>
+                            <span style={{fontSize:8,fontWeight:700,color:ev.color||"#f0c040",letterSpacing:1,padding:"1px 5px",background:(ev.color||"#f0c040")+"18",border:`1px solid ${ev.color||"#f0c040"}44`,borderRadius:2}}>{ev.type||"EVENT"}</span>
+                            <span style={{fontSize:7.5,color:"rgba(200,216,232,0.35)",fontFamily:"monospace"}}>{ev.cls}</span>
+                            <span style={{fontSize:7.5,color:"rgba(200,216,232,0.35)",marginLeft:"auto",fontFamily:"monospace"}}>{ev.src}</span>
+                          </div>
+                          <div style={{fontSize:10,fontWeight:700,color:"#9ab8cc",marginBottom:1}}>{ev.title}</div>
+                          <div style={{fontSize:8,color:"rgba(200,216,232,0.3)",fontFamily:"monospace",marginBottom:4}}>{ev.ts}</div>
+                          <div style={{fontSize:9.5,lineHeight:1.68,color:"rgba(200,216,232,0.6)"}}>{ev.body}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ));
+                  // Plain text fallback
+                  return(
+                    <div style={{padding:"12px 14px",fontSize:10,lineHeight:1.82,color:"rgba(200,216,232,0.65)",whiteSpace:"pre-wrap",wordBreak:"break-word"}}>
+                      <HighlightText text={tabLiveText.sigact}/>
+                    </div>
+                  );
+                })():(
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:10,opacity:0.4}}>
+                    <div style={{fontSize:28}}>⚡</div>
+                    <div style={{fontSize:9,color:"rgba(200,216,232,0.5)",fontFamily:"monospace",letterSpacing:1,textAlign:"center"}}>
+                      {groq?"PRESS ↻ FETCH TO LOAD LIVE SIGACTs":"SET GROQ KEY IN TOPBAR TO ENABLE"}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Cesium viewport + right panel ──────────────────────────── */}
@@ -1072,6 +1236,16 @@ export default function GothamOrbital(){
             <div style={{position:"absolute",right:12,top:12,display:"flex",flexDirection:"column",gap:4,zIndex:5}}>
               <button className="zb" onClick={flyHome} title="Home view">⌂</button>
               {selUI&&selPos&&<button className="zb" onClick={()=>flyToSat(selUI.id)} title="Fly to satellite">🎯</button>}
+              <button className="zb" title="Zoom in" onClick={()=>{
+                const v=viewerRef.current;if(!v||!window.Cesium)return;
+                const cart=v.camera.position;const mag=window.Cesium.Cartesian3.magnitude(cart);
+                v.camera.position=window.Cesium.Cartesian3.multiplyByScalar(cart,0.7,new window.Cesium.Cartesian3());
+              }}>+</button>
+              <button className="zb" title="Zoom out" onClick={()=>{
+                const v=viewerRef.current;if(!v||!window.Cesium)return;
+                const cart=v.camera.position;const mag=window.Cesium.Cartesian3.magnitude(cart);
+                v.camera.position=window.Cesium.Cartesian3.multiplyByScalar(cart,1.4,new window.Cesium.Cartesian3());
+              }}>−</button>
               <button className="zb" title="Tilt up" onClick={()=>{
                 const v=viewerRef.current;if(!v)return;
                 v.camera.rotateUp(0.3);
@@ -1121,63 +1295,120 @@ export default function GothamOrbital(){
           </div>
 
           {/* Right panel */}
-          <div style={{width:280,flexShrink:0,background:"#fff",borderLeft:"1px solid #d8e0e8",display:"flex",flexDirection:"column",minHeight:0,boxShadow:"-2px 0 8px rgba(0,0,0,0.08)"}}>
+          <div style={{width:rightPanelOpen?280:0,flexShrink:0,background:"#0d1828",borderLeft:rightPanelOpen?"1px solid rgba(255,255,255,0.07)":"none",display:"flex",flexDirection:"column",minHeight:0,boxShadow:rightPanelOpen?"-2px 0 12px rgba(0,0,0,0.4)":"none",overflow:"hidden",transition:"width .2s ease"}}>
             {sit&&(<>
-              {/* Doctrinal pattern */}
-              <div style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4",flexShrink:0}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:8,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:3,height:10,background:"#8a3800",borderRadius:1,display:"inline-block"}}/>DOCTRINAL PATTERN</span>
-                  <button className="wpbtn" style={{fontSize:9,padding:"2px 8px",color:"#2a7fc1",borderColor:"rgba(42,127,193,0.3)"}}>Explore</button>
+              {/* Threat Timeline — live from alerts state */}
+              <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)",flexShrink:0}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>
+                  <span style={{width:3,height:10,background:"#c0192c",borderRadius:1,display:"inline-block"}}/>THREAT TIMELINE
+                  {running&&<span style={{fontSize:7,color:"#4dd9a0",fontFamily:"monospace",marginLeft:"auto",animation:"dp 1.2s infinite"}}>● LIVE</span>}
                 </div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                  <div style={{fontSize:11,fontWeight:600,color:"#1e2830"}}>{sit.pattern.name}</div>
-                </div>
-                <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:10}}>
-                  <span style={{fontSize:9,color:"#6a7a88"}}>Status:</span>
-                  <span style={{fontSize:8.5,fontWeight:700,letterSpacing:1,padding:"1px 7px",borderRadius:2,background:sit.pattern.status==="ACTIVE"?"#fde8ea":sit.pattern.status==="PERSISTENT"?"#fdf0e8":"#e8f5ee",border:`1px solid ${sit.pattern.status==="ACTIVE"?"#d46070":sit.pattern.status==="PERSISTENT"?"#d4906a":"#a8d8bc"}`,color:sit.pattern.status==="ACTIVE"?"#8a0015":sit.pattern.status==="PERSISTENT"?"#8a3800":"#1a7a4a"}}>{sit.pattern.status}</span>
-                </div>
-                <div style={{background:"#f8fafc",border:"1px solid #e8ecf0",borderRadius:3,padding:"14px 10px",display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center"}}>
-                  {sit.pattern.units.map((u,i)=><MilUnit key={i} {...u}/>)}
-                </div>
+                {alerts.length===0?(
+                  <div style={{fontSize:9,color:"rgba(200,216,232,0.2)",fontStyle:"italic",fontFamily:"monospace"}}>No events — start monitor to track activity</div>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {alerts.slice(0,4).map((ev,i)=>(
+                      <div key={i} style={{display:"flex",gap:8,paddingLeft:8,borderLeft:`2px solid ${THREAT_META[ev.lvl].color}`}}>
+                        <div style={{fontSize:8,color:"rgba(200,216,232,0.3)",fontFamily:"monospace",flexShrink:0,whiteSpace:"nowrap"}}>{ev.ts}</div>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:8.5,fontWeight:600,color:THREAT_META[ev.lvl].color}}>{THREAT_META[ev.lvl].label}</div>
+                          <div style={{fontSize:9,color:"rgba(200,216,232,0.55)",lineHeight:1.4}}>{ev.msg}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Object summary */}
-              <div style={{padding:"10px 14px",borderBottom:"1px solid #eef1f4",flexShrink:0}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:3,height:10,background:"#2a7fc1",borderRadius:1,display:"inline-block"}}/>OBJECT SUMMARY
+              {/* Conjunction Risk — real distances from live SGP4 positions */}
+              <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)",flexShrink:0}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:8,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:3,height:10,background:"#c0192c",borderRadius:1,display:"inline-block"}}/>CONJUNCTION RISK</span>
+                  <span style={{fontSize:7,color:"rgba(200,216,232,0.25)",letterSpacing:1,fontFamily:"monospace"}}>LIVE · SGP4</span>
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:4}}>
-                  {[{label:"MILITARY",color:"#c0192c",bg:"#fde8ea",border:"#d46070"},{label:"CIVILIAN",color:"#1a5c9a",bg:"#e8f0f8",border:"#90b8d8"},{label:"COMMERCIAL",color:"#4a5a68",bg:"#f0f4f8",border:"#b0bcc8"},{label:"INTEL",color:"#6a3800",bg:"#fdf0e0",border:"#c09060"}].map(t=>(
-                    <div key={t.label} style={{background:t.bg,border:`1px solid ${t.border}`,borderRadius:2,padding:"5px 7px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <div style={{fontSize:7.5,color:t.color,letterSpacing:1,fontWeight:700}}>{t.label}</div>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:15,color:t.color}}>
-                        {SAT_CATALOG.filter(s=>s.type===t.label||s.type.startsWith(t.label.slice(0,4))).length}
-                      </div>
+                {(()=>{
+                  const pairs=computeConjunctions();
+                  if(pairs.length===0) return(
+                    <div style={{fontSize:9,color:"rgba(200,216,232,0.2)",fontStyle:"italic",fontFamily:"monospace"}}>No close approaches detected</div>
+                  );
+                  return(
+                    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                      {pairs.map((c,i)=>{
+                        const rm=THREAT_META[c.risk];
+                        return(
+                          <div key={i} style={{background:rm.color+"12",border:`1px solid ${rm.color}30`,borderRadius:2,padding:"5px 7px"}}>
+                            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:3}}>
+                              <div style={{display:"flex",alignItems:"center",gap:4,minWidth:0}}>
+                                <span style={{fontSize:7.5,fontWeight:700,color:rm.color,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.obj1}</span>
+                                <span style={{fontSize:8,color:"rgba(200,216,232,0.25)",flexShrink:0}}>↔</span>
+                                <span style={{fontSize:7.5,fontWeight:700,color:"rgba(200,216,232,0.6)",fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.obj2}</span>
+                              </div>
+                              <span style={{fontSize:7,fontWeight:700,color:rm.color,letterSpacing:0.5,padding:"1px 4px",background:rm.color+"22",borderRadius:2,flexShrink:0,marginLeft:4}}>{rm.label}</span>
+                            </div>
+                            <div style={{display:"flex",gap:10}}>
+                              <div><span style={{fontSize:7,color:"rgba(200,216,232,0.25)"}}>DIST </span><span style={{fontSize:8.5,fontWeight:700,color:"#9ab8cc",fontFamily:"monospace"}}>{c.dca} km</span></div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Intel overview */}
               <div style={{flex:1,overflowY:"auto",padding:"10px 14px",minHeight:0}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:3,height:10,background:"#8a3800",borderRadius:1,display:"inline-block"}}/>INTEL OVERVIEW
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:8,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <span style={{display:"flex",alignItems:"center",gap:5}}>
+                    <span style={{width:3,height:10,background:"#8a3800",borderRadius:1,display:"inline-block"}}/>INTEL OVERVIEW
+                  </span>
+                  <span style={{display:"flex",alignItems:"center",gap:4}}>
+                    {intelLoading
+                      ? <span style={{fontSize:7,color:"#4dd9a0",letterSpacing:1,fontFamily:"monospace",animation:"dp 1s infinite"}}>● FETCHING</span>
+                      : intelSitId===sit.id&&intelText
+                        ? <span style={{fontSize:7,color:"#4dd9a0",letterSpacing:1,fontFamily:"monospace"}}>● LIVE</span>
+                        : <span style={{fontSize:7,color:"rgba(200,216,232,0.2)",letterSpacing:1,fontFamily:"monospace"}}>○ STATIC</span>
+                    }
+                    <button onClick={()=>fetchIntelOverview(sit)} title="Refresh intel" style={{background:"transparent",border:"none",color:"rgba(200,216,232,0.25)",cursor:"pointer",fontSize:10,padding:"0 2px",lineHeight:1}}
+                      onMouseEnter={e=>e.currentTarget.style.color="#4dd9a0"}
+                      onMouseLeave={e=>e.currentTarget.style.color="rgba(200,216,232,0.25)"}>↻</button>
+                  </span>
                 </div>
-                <div style={{fontSize:10,lineHeight:1.88,color:"#2a3a48"}}>
-                  <HighlightText text={sit.summary.slice(0,280)+"…"}/>
-                </div>
-                <button className="wpbtn" style={{marginTop:10,width:"100%",justifyContent:"center",fontSize:10,color:"#2a7fc1",borderColor:"rgba(42,127,193,0.3)"}} onClick={()=>setTab("intel")}>
+
+                {intelLoading?(
+                  /* Loading shimmer */
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {[100,85,92,70].map((w,i)=>(
+                      <div key={i} style={{height:9,width:`${w}%`,background:"rgba(255,255,255,0.06)",borderRadius:2,animation:"dp 1.4s ease-in-out infinite",animationDelay:`${i*0.15}s`}}/>
+                    ))}
+                  </div>
+                ):(
+                  intelSitId===sit.id&&intelText ? (
+                    <div style={{fontSize:10,lineHeight:1.88,color:"rgba(200,216,232,0.6)"}}>
+                      <HighlightText text={intelText}/>
+                    </div>
+                  ) : (
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",paddingTop:20,gap:8,opacity:0.4}}>
+                      <div style={{fontSize:22}}>📡</div>
+                      <div style={{fontSize:9,color:"rgba(200,216,232,0.5)",fontFamily:"monospace",letterSpacing:1,textAlign:"center"}}>
+                        {groq ? "FETCHING LIVE INTEL…" : "SET GROQ KEY TO ENABLE"}
+                      </div>
+                    </div>
+                  )
+                )}
+
+                <button className="wpbtn" style={{marginTop:10,width:"100%",justifyContent:"center",fontSize:10}} onClick={()=>setTab("intel")}>
                   View full report →
                 </button>
 
                 {/* Alerts */}
                 {alerts.length>0&&(
                   <div style={{marginTop:12}}>
-                    <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"#5a6a78",marginBottom:6,display:"flex",alignItems:"center",gap:5}}>
+                    <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:"rgba(200,216,232,0.4)",marginBottom:6,display:"flex",alignItems:"center",gap:5}}>
                       <span style={{width:3,height:10,background:"#c0192c",borderRadius:1,display:"inline-block"}}/>RECENT ALERTS
                     </div>
                     {alerts.slice(0,4).map((a,i)=>(
-                      <div key={i} style={{padding:"4px 8px",marginBottom:3,fontSize:9,borderLeft:`2px solid ${THREAT_META[a.lvl].color}`,background:THREAT_META[a.lvl].bg,borderRadius:"0 2px 2px 0",color:"#3a4a58"}}>
+                      <div key={i} style={{padding:"4px 8px",marginBottom:3,fontSize:9,borderLeft:`2px solid ${THREAT_META[a.lvl].color}`,background:THREAT_META[a.lvl].color+"14",borderRadius:"0 2px 2px 0",color:"rgba(200,216,232,0.6)"}}>
                         <span style={{color:THREAT_META[a.lvl].color,fontSize:7.5,display:"block",fontFamily:"monospace"}}>{a.ts}</span>
                         {a.msg}
                       </div>

@@ -1,18 +1,11 @@
-/* Remove white everywhere */
-body {
-  margin: 0;
-  background-color: #0a0f1c; /* dark gotham bg */
-  color: #e6edf3;
+/* Smooth panels */
+.panel, .card, .box, aside, section {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
 }
 
-/* Force override all white containers */
-div, section, aside, panel {
-  background-color: transparent !important;
-}
-
-/* Optional: make cards dark instead of white */
-.card, .panel, .box {
-  background: rgba(15, 23, 42, 0.8) !important;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.08);
+/* Subtle glow instead of harsh borders */
+.panel:hover {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
 }
