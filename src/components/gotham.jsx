@@ -388,7 +388,7 @@ export default function GothamOrbital(){
       }
     };
   },[]); // eslint-disable-line
-
+  console.log("Backend URL:", bUrl);
   // ── Cesium init ───────────────────────────────────────────────────────────
   function initCesium(){
     const Cesium = window.Cesium;
