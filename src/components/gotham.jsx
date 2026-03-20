@@ -54,17 +54,48 @@ const FALLBACK_TLES = {
 };
 
 // ── Metal ticker ──────────────────────────────────────────────────────────────
+// function useMetals() {
+//   const [p,setP]=useState({gold:2347.80,silver:27.924,gd:0.12,sd:-0.031});
+//   useEffect(()=>{
+//     const iv=setInterval(()=>setP(prev=>({
+//       gold:+(prev.gold+(Math.random()-.48)*1.6).toFixed(2),
+//       silver:+(prev.silver+(Math.random()-.48)*.07).toFixed(3),
+//       gd:+((Math.random()-.48)*1.6).toFixed(2),
+//       sd:+((Math.random()-.48)*.07).toFixed(3),
+//     })),2800);
+//     return()=>clearInterval(iv);
+//   },[]);
+//   return p;
+// }
 function useMetals() {
-  const [p,setP]=useState({gold:2347.80,silver:27.924,gd:0.12,sd:-0.031});
-  useEffect(()=>{
-    const iv=setInterval(()=>setP(prev=>({
-      gold:+(prev.gold+(Math.random()-.48)*1.6).toFixed(2),
-      silver:+(prev.silver+(Math.random()-.48)*.07).toFixed(3),
-      gd:+((Math.random()-.48)*1.6).toFixed(2),
-      sd:+((Math.random()-.48)*.07).toFixed(3),
-    })),2800);
-    return()=>clearInterval(iv);
-  },[]);
+  const [p, setP] = useState({ gold: 2347.80, silver: 27.924, gd: 0, sd: 0 });
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        // Free API — no key needed, updates every few minutes
+        const r = await fetch(
+          "https://api.metals.live/v1/spot/gold,silver"
+        );
+        const data = await r.json();
+        const gold   = data.find(d => d.gold)?.gold   ?? p.gold;
+        const silver = data.find(d => d.silver)?.silver ?? p.silver;
+        setP(prev => ({
+          gold,
+          silver,
+          gd: +(gold   - prev.gold).toFixed(2),
+          sd: +(silver - prev.silver).toFixed(3),
+        }));
+      } catch {
+        // silently keep last known price
+      }
+    };
+
+    fetchPrices();
+    const iv = setInterval(fetchPrices, 60000); // refresh every 60s
+    return () => clearInterval(iv);
+  }, []);
+
   return p;
 }
 
