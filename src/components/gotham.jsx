@@ -68,7 +68,7 @@ const FALLBACK_TLES = {
 //   return p;
 // }
 function useMetals() {
-  const [p, setP] = useState({ gold: 4574.73, silver: 32.94, gd: 0, sd: 0 });
+  const [p, setP] = useState({ gold: 0, silver: 0, gd: 0, sd: 0 });
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -93,16 +93,16 @@ function useMetals() {
         setP(prev => ({
           gold,
           silver,
-          gd: +(gold   - prev.gold).toFixed(2),
-          sd: +(silver - prev.silver).toFixed(3),
+          gd: +(goldData.ch).toFixed(2),   // use API's own change value
+          sd: +(silverData.ch).toFixed(3),  // use API's own change value
         }));
       } catch (e) {
         console.warn("Metals fetch failed:", e.message);
       }
     };
 
-    fetchPrices();
-    const iv = setInterval(fetchPrices, 28800000); // every 8 hours — safe within 100/month
+    fetchPrices(); // fetch immediately on load
+    const iv = setInterval(fetchPrices, 28800000); // then every 8 hours
     return () => clearInterval(iv);
   }, []);
 
