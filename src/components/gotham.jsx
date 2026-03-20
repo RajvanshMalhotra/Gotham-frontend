@@ -68,36 +68,47 @@ const FALLBACK_TLES = {
 //   return p;
 // }
 function useMetals() {
-  const [p, setP] = useState({ gold: 2347.80, silver: 27.924, gd: 0, sd: 0 });
+  const [p, setP] = useState({ gold: 4574.73, silver: 32.94, gd: 0, sd: 0 });
 
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Free API — no key needed, updates every few minutes
-        const r = await fetch(
-          "https://api.metals.live/v1/spot/gold,silver"
-        );
-        const data = await r.json();
-        const gold   = data.find(d => d.gold)?.gold   ?? p.gold;
-        const silver = data.find(d => d.silver)?.silver ?? p.silver;
+        const API_KEY = import.meta.env.VITE_METALS_API_KEY;
+
+        const [goldRes, silverRes] = await Promise.all([
+          fetch("https://www.goldapi.io/api/XAU/USD", {
+            headers: { "x-access-token": API_KEY, "Content-Type": "application/json" }
+          }),
+          fetch("https://www.goldapi.io/api/XAG/USD", {
+            headers: { "x-access-token": API_KEY, "Content-Type": "application/json" }
+          })
+        ]);
+
+        const goldData   = await goldRes.json();
+        const silverData = await silverRes.json();
+
+        const gold   = +goldData.price.toFixed(2);
+        const silver = +silverData.price.toFixed(3);
+
         setP(prev => ({
           gold,
           silver,
           gd: +(gold   - prev.gold).toFixed(2),
           sd: +(silver - prev.silver).toFixed(3),
         }));
-      } catch {
-        // silently keep last known price
+      } catch (e) {
+        console.warn("Metals fetch failed:", e.message);
       }
     };
 
     fetchPrices();
-    const iv = setInterval(fetchPrices, 60000); // refresh every 60s
+    const iv = setInterval(fetchPrices, 28800000); // every 8 hours — safe within 100/month
     return () => clearInterval(iv);
   }, []);
 
   return p;
 }
+
 
 // ── Backend helpers ───────────────────────────────────────────────────────────
 async function apiAgent(url,sec,groq,tav,role,msg,snap){
